@@ -7,7 +7,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
+//import java.io.IOException;
+import java.io.*;
 
 public class Crawler {
     public static void main(String[] args) throws IOException {
@@ -18,7 +19,7 @@ public class Crawler {
             System.out.println(response1.getStatusLine());
             HttpEntity entity1 = response1.getEntity();
             String s = EntityUtils.toString(entity1);
-            System.out.println(s);
+//            System.out.println(s);
         }
     }
 }
