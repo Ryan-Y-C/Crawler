@@ -7,7 +7,6 @@ jobs:
       - checkout
       - restore_cache:
           key: hcsp-{{ checksum "pom.xml" }}
-
       - run:
           name: Run Maven verify
           command: mvn clean verify
