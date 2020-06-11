@@ -9,7 +9,6 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +28,7 @@ public class Crawler {
         while (!linkPool.isEmpty()) {
             //当获取到链接后将链接删除，ArrayList从尾部删除更有效率
             String link = linkPool.remove(linkPool.size() - 1);
-            if (!processedLink.contains(link)||!link.contains("passport") && link.contains("sina.cn") && (link.contains("news.sina") || "https://sina.cn".equals(link))) {
+            if (!processedLink.contains(link) || !link.contains("passport") && link.contains("sina.cn") && (link.contains("news.sina") || "https://sina.cn".equals(link))) {
                 CloseableHttpClient httpclient = HttpClients.createDefault();
                 if (link.startsWith("//")) {
                     link = "https:" + link;
@@ -51,7 +50,7 @@ public class Crawler {
                     ArrayList<Element> articleTags = doc.select("article");
                     if (!articleTags.isEmpty()) {
                         for (Element articleTag : articleTags) {
-                            String title=articleTag.select("h1.art_tit_h1").text();
+                            String title = articleTag.select("h1.art_tit_h1").text();
                             System.out.println(title);
                         }
                     }
