@@ -113,6 +113,16 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>6.4.4</version>
+                <configuration>
+                    <url>jdbc:h2:file:J:\Crawler\news</url>
+                    <user>ryan</user>
+                    <password>123</password>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

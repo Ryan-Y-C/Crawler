@@ -19,27 +19,21 @@ import java.net.URLDecoder;
 import java.sql.*;
 import java.util.ArrayList;
 
-import java.util.List;
-
 
 public class Crawler {
     private static final String USER = "ryan";
 
     private static final String PASSWORD = "123";
 
+    //https://news.sina.cn/?wm=1871
     @SuppressFBWarnings("DMI_CONSTANT_DB_PASSWORD")
     public static void main(String[] args) throws IOException, SQLException {
         String url = "jdbc:h2:file:J:\\Crawler\\news";
         Connection connection = DriverManager.getConnection(url, USER, PASSWORD);
 
-        while (true) {
-            List<String> linkPool = loadUrlsFromDataBase("select link from links_to_be_processed", connection);
-            if (linkPool.isEmpty()) {
-                break;
-            }
-            String link = URLDecoder.decode(linkPool.remove(linkPool.size() - 1), "UTF-8");
-            removeFromDataBase(connection, link);
-            System.out.println(link);
+        String link;
+        while ((link = getNextLinkAndDelete(connection)) != null) {
+
             if (isLinkProcessed(connection, link)) {
                 continue;
             }
@@ -49,7 +43,7 @@ public class Crawler {
                 parseUrlsFromPageAndStoreIntoDataBase(connection, doc);
 
                 //将当前新闻页面存储在news数据表中
-                storeIntoDataBaseIfIsNewsPage(doc);
+                storeIntoDataBaseIfIsNewsPage(connection, link, doc);
 
                 //将当前链接放入已处理的数据库中
                 System.out.println(link);
@@ -58,12 +52,31 @@ public class Crawler {
         }
     }
 
+    private static String getNextLinkAndDelete(Connection connection) throws SQLException {
+        String nextLink = getNextLink("select link from links_to_be_processed limit 1", connection);
+        if (nextLink != null) {
+            removeLinkFromDataBase(connection, nextLink);
+        }
+        return nextLink;
+    }
+
     //将该页面的所有链接放入待处理的数据库中
     private static void parseUrlsFromPageAndStoreIntoDataBase(Connection connection, Document doc) throws SQLException, UnsupportedEncodingException {
         for (Element aTag : doc.select("a[href]")) {
             String href = URLDecoder.decode(aTag.attr("href"), "UTF-8");
-            insertLinkIntoDataBase(connection, href, "INSERT INTO LINKS_TO_BE_PROCESSED (LINK)VALUES ( ? )");
+            if (href.startsWith("//")) {
+                href = "https:" + href;
+            }
+            if (isInterestedPage(href)) {
+                insertLinkIntoDataBase(connection, href, "INSERT INTO LINKS_TO_BE_PROCESSED (LINK)VALUES ( ? )");
+            }
+
         }
+    }
+
+    private static boolean isInterestedPage(String href) {
+        return !href.toLowerCase().startsWith("javascript") && !href.contains("my") && !href.contains("lives") &&
+                !href.contains("zhongce") && !href.contains("so.sina.cn") && !href.contains("weather1");
     }
 
     private static boolean isLinkProcessed(Connection connection, String link) throws SQLException {
@@ -90,27 +103,35 @@ public class Crawler {
         }
     }
 
-    private static void removeFromDataBase(Connection connection, String link) throws SQLException {
+    private static void removeLinkFromDataBase(Connection connection, String link) throws SQLException {
         insertLinkIntoDataBase(connection, link, "delete from LINKS_TO_BE_PROCESSED where link=?");
     }
 
-    private static List<String> loadUrlsFromDataBase(String sql, Connection connection) throws SQLException {
-        ArrayList<String> results = new ArrayList<>();
+    private static String getNextLink(String sql, Connection connection) throws SQLException {
+        String link;
         try (PreparedStatement statement = connection.prepareStatement(sql); ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                results.add(resultSet.getString(1));
+                link = resultSet.getString(1);
+                removeLinkFromDataBase(connection, link);
+                return link;
             }
         }
-        return results;
+        return null;
     }
 
-    //将新闻页面存储在news数据表中
-    private static void storeIntoDataBaseIfIsNewsPage(Document doc) {
+    //将新闻页面数据存储在news数据表中
+    private static void storeIntoDataBaseIfIsNewsPage(Connection connection, String link, Document doc) throws SQLException {
         ArrayList<Element> articleTags = doc.select("article");
         if (!articleTags.isEmpty()) {
             for (Element articleTag : articleTags) {
                 String title = articleTag.select("h1.art_tit_h1").text();
-                System.out.println(title);
+                String content = doc.select("section.art_pic_card").text();
+                try (PreparedStatement statement = connection.prepareStatement("insert into NEWS(TITLE,CONTENT,URL,CREATED_AT,MODIFIED_AT)values ( ?,?,?,now(),now())")) {
+                    statement.setString(1, title);
+                    statement.setString(2, content);
+                    statement.setString(3, link);
+                    statement.executeUpdate();
+                }
             }
         }
     }
@@ -120,13 +141,11 @@ public class Crawler {
         if (link.startsWith("//")) {
             link = "https:" + link;
         }
-
         HttpGet httpGet = new HttpGet(link);
         httpGet.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537");
         try (CloseableHttpResponse response1 = httpclient.execute(httpGet)) {
-            System.out.println(response1.getStatusLine());
             HttpEntity entity1 = response1.getEntity();
-            String html = EntityUtils.toString(entity1);
+            String html = EntityUtils.toString(entity1, "utf-8");
             return Jsoup.parse(html);
         }
     }
