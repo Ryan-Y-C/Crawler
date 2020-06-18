@@ -1,6 +1,5 @@
 package com.github.hcsp;
 
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,8 +21,7 @@ import java.util.ArrayList;
 
 public class Crawler {
 
-
-    private DatabaseAccessObject dao = new DatabaseAccessObject();
+    private CrawlerDao dao = new JdbcCrawlerDao();
 
     public static void main(String[] args) throws IOException, SQLException {
         new Crawler().run();
