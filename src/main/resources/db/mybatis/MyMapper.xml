@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.github.hcsp.MyMapper">
+    <select id="selectNextLink" resultType="String">
+        select link
+        from links_to_be_processed
+        limit 1;
+    </select>
+    <delete id="deleteLink" parameterType="String">
+        delete
+        from LINKS_TO_BE_PROCESSED
+        where link = #{link}
+    </delete>
+    <insert id="insertUnProcessedLink" parameterType="String">
+        insert into LINKS_TO_BE_PROCESSED (LINK)
+        values (#{link})
+    </insert>
+    <insert id="insertProcessedLink" parameterType="String">
+        insert into LINKS_ALREADY_PROCESSED (LINK)
+        values (#{link})
+    </insert>
+
+    <select id="selectProcessedLink" parameterType="String" resultType="int">
+        SELECT (count(LINK))
+        FROM LINKS_ALREADY_PROCESSED
+        WHERE LINK = (#{link})
+    </select>
+
+    <insert id="insertNews" parameterType="com.github.hcsp.News">
+        insert into NEWS(TITLE, CONTENT, URL, CREATED_AT, MODIFIED_AT)
+        values ((#{title}), (#{content}), (#{url}), now(), now())
+    </insert>
+
+    <insert id="insertLink" parameterType="HashMap">
+        insert into
+        <choose>
+            <when test="tableName == 'links_to_be_processed'">
+                LINKS_TO_BE_PROCESSED
+            </when>
+            <otherwise>
+                LINKS_ALREADY_PROCESSED
+            </otherwise>
+        </choose>
+        (link)values #{link}
+    </insert>
+</mapper>

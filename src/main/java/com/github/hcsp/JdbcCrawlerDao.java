@@ -44,7 +44,7 @@ class JdbcCrawlerDao implements CrawlerDao {
     }
 
     private void removeLinkFromDataBase(String link) throws SQLException {
-        insertLinkIntoDataBase(link, "delete from LINKS_TO_BE_PROCESSED where link=?");
+        insertLinkOrDeleteLink(link, "delete from LINKS_TO_BE_PROCESSED where link=?");
     }
 
     public void insertNewsIntoDataBase(String url, String title, String content) throws SQLException {
@@ -57,8 +57,18 @@ class JdbcCrawlerDao implements CrawlerDao {
 
     }
 
+    @Override
+    public void insertProcessedLink(String link) throws SQLException {
+        insertLinkOrDeleteLink(link, "INSERT INTO LINKS_ALREADY_PROCESSED (LINK)VALUES ( ? )");
+    }
+
+    @Override
+    public void insertUnProcessedLink(String link) throws SQLException {
+        insertLinkOrDeleteLink(link, "INSERT INTO LINKS_TO_BE_PROCESSED (LINK)VALUES ( ? )");
+    }
+
     //将页面中的链接加入到待处理的数据表中
-    public void insertLinkIntoDataBase(String link, String sql) throws SQLException {
+    public void insertLinkOrDeleteLink(String link, String sql) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, link);
             statement.executeUpdate();
