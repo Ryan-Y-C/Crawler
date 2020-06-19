@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 public class Crawler {
 
-    private CrawlerDao dao = new JdbcCrawlerDao();
+    private CrawlerDao dao = new MyBatisCrawlerDao();
 
     public static void main(String[] args) throws IOException, SQLException {
         new Crawler().run();
@@ -43,8 +43,8 @@ public class Crawler {
                 storeIntoDataBaseIfIsNewsPage(link, doc);
 
                 //将当前链接放入已处理的数据库中
-                System.out.println(link);
-                dao.insertLinkIntoDataBase(link, "INSERT INTO LINKS_ALREADY_PROCESSED (LINK)VALUES ( ? )");
+//                System.out.println(link);
+                dao.insertProcessedLink(link);
             }
         }
     }
@@ -56,8 +56,11 @@ public class Crawler {
             if (href.startsWith("//")) {
                 href = "https:" + href;
             }
+//            if (dao.isLinkProcessed(href)) {
+//                continue;
+//            }
             if (isInterestedPage(href)) {
-                dao.insertLinkIntoDataBase(href, "INSERT INTO LINKS_TO_BE_PROCESSED (LINK)VALUES ( ? )");
+                dao.insertUnProcessedLink(href);
             }
 
         }
@@ -65,7 +68,8 @@ public class Crawler {
 
     private boolean isInterestedPage(String href) {
         return !href.toLowerCase().startsWith("javascript") && !href.contains("my") && !href.contains("lives") &&
-                !href.contains("zhongce") && !href.contains("so.sina.cn") && !href.contains("weather1");
+                !href.contains("zhongce") && !href.contains("so.sina.cn") && !href.contains("weather1")
+                && !href.contains("wm");
     }
 
 
