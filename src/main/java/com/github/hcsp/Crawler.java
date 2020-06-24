@@ -19,33 +19,37 @@ import java.sql.*;
 import java.util.ArrayList;
 
 
-public class Crawler {
+public class Crawler implements Runnable {
 
-    private CrawlerDao dao = new MyBatisCrawlerDao();
+    private CrawlerDao dao;
 
-    public static void main(String[] args) throws IOException, SQLException {
-        new Crawler().run();
+    public Crawler(CrawlerDao dao) {
+        this.dao = dao;
     }
 
-    void run() throws IOException, SQLException {
+    public void run() {
 
-        String link;
-        while ((link = dao.getNextLinkAndDelete()) != null) {
-            if (dao.isLinkProcessed(link)) {
-                continue;
-            }
-            if (isInterestingLink(link)) {
-                Document doc = httpGetAndParseHtml(link);
-                //将该页面的所有链接放入待处理的数据库中
-                parseUrlsFromPageAndStoreIntoDataBase(doc);
+        try {
+            String link;
+            while ((link = dao.getNextLinkAndDelete()) != null) {
+                if (dao.isLinkProcessed(link)) {
+                    continue;
+                }
+                if (isInterestingLink(link)) {
+                    Document doc = httpGetAndParseHtml(link);
+                    //将该页面的所有链接放入待处理的数据库中
+                    parseUrlsFromPageAndStoreIntoDataBase(doc);
 
-                //将当前新闻页面存储在news数据表中
-                storeIntoDataBaseIfIsNewsPage(link, doc);
+                    //将当前新闻页面存储在news数据表中
+                    storeIntoDataBaseIfIsNewsPage(link, doc);
 
-                //将当前链接放入已处理的数据库中
+                    //将当前链接放入已处理的数据库中
 //                System.out.println(link);
-                dao.insertProcessedLink(link);
+                    dao.insertProcessedLink(link);
+                }
             }
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -56,9 +60,6 @@ public class Crawler {
             if (href.startsWith("//")) {
                 href = "https:" + href;
             }
-//            if (dao.isLinkProcessed(href)) {
-//                continue;
-//            }
             if (isInterestedPage(href)) {
                 dao.insertUnProcessedLink(href);
             }
