@@ -64,11 +64,11 @@ class JdbcCrawlerDao implements CrawlerDao {
 
     @Override
     public void insertUnProcessedLink(String link) throws SQLException {
-        insertLinkOrDeleteLink(link,"INSERT INTO LINKS_TO_BE_PROCESSED (LINK)VALUES ( ? )");
+        insertLinkOrDeleteLink(link, "INSERT INTO LINKS_TO_BE_PROCESSED (LINK)VALUES ( ? )");
     }
 
     //将页面中的链接加入到待处理的数据表中
-    public void insertLinkOrDeleteLink(String link,String sql) throws SQLException {
+    public void insertLinkOrDeleteLink(String link, String sql) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, link);
             statement.executeUpdate();
