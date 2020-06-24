@@ -80,6 +80,7 @@ public class Crawler {
             for (Element articleTag : articleTags) {
                 String title = articleTag.select("h1.art_tit_h1").text();
                 String content = doc.select("section.art_pic_card").text();
+                System.out.println(title);
                 dao.insertNewsIntoDataBase(link, title, content);
             }
         }
