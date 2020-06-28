@@ -23,7 +23,7 @@ public class MyBatisCrawlerDao implements CrawlerDao {
     }
 
     @Override
-    public String getNextLinkAndDelete() {
+    public synchronized String getNextLinkAndDelete() {
         try (SqlSession session = sqlSessionFactory.openSession(true)) {
             String link = session.selectOne("com.github.hcsp.MyMapper.selectNextLink");
             if (link != null) {

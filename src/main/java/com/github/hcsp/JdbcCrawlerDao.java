@@ -24,7 +24,7 @@ class JdbcCrawlerDao implements CrawlerDao {
 
     //从待处理的数据库中取出链接并且删除
     public String getNextLinkAndDelete() throws SQLException {
-        String nextLink = getNextLink("select link from links_to_be_processed limit 1");
+        String nextLink = getNextLink("select link from LINKS_TO_BE_PROCESSED limit 1");
         if (nextLink != null) {
             removeLinkFromDataBase(nextLink);
         }

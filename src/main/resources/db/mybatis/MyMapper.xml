@@ -5,7 +5,7 @@
 <mapper namespace="com.github.hcsp.MyMapper">
     <select id="selectNextLink" resultType="String">
         select link
-        from links_to_be_processed
+        from LINKS_TO_BE_PROCESSED
         limit 1;
     </select>
     <delete id="deleteLink" parameterType="String">
@@ -43,6 +43,6 @@
                 LINKS_ALREADY_PROCESSED
             </otherwise>
         </choose>
-        (link)values #{link}
+        (link)values (#{link})
     </insert>
 </mapper>
