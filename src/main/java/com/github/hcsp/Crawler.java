@@ -73,7 +73,6 @@ public class Crawler implements Runnable {
                 && !href.contains("wm");
     }
 
-
     //将新闻页面数据存储在news数据表中
     private void storeIntoDataBaseIfIsNewsPage(String link, Document doc) throws SQLException {
         ArrayList<Element> articleTags = doc.select("article");
