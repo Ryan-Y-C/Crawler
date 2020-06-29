@@ -14,9 +14,9 @@ import java.util.Scanner;
 
 public class ElasticsearchEngine {
     public static void main(String[] args) {
-        while (true){
+        while (true) {
             System.out.println("请输入搜索关键字：");
-            Scanner sc = new Scanner(System.in);
+            Scanner sc = new Scanner(System.in, "utf-8");
             String keyword = sc.next();
             search(keyword);
         }
@@ -26,7 +26,7 @@ public class ElasticsearchEngine {
         try (RestHighLevelClient client = new RestHighLevelClient(RestClient.builder(new HttpHost("localhost", 9200, "http")))) {
             SearchRequest searchRequest = new SearchRequest("news");
             SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
-            searchSourceBuilder.query(QueryBuilders.multiMatchQuery(keyword,"title","content"));
+            searchSourceBuilder.query(QueryBuilders.multiMatchQuery(keyword, "title", "content"));
             searchRequest.source(searchSourceBuilder);
             SearchResponse search = client.search(searchRequest, RequestOptions.DEFAULT);
             search.getHits().forEach(hit -> System.out.println(hit.getSourceAsString()));
