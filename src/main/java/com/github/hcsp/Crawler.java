@@ -37,14 +37,11 @@ public class Crawler implements Runnable {
                 }
                 if (isInterestingLink(link)) {
                     Document doc = httpGetAndParseHtml(link);
-                    //将该页面的所有链接放入待处理的数据库中
+
                     parseUrlsFromPageAndStoreIntoDataBase(doc);
 
-                    //将当前新闻页面存储在news数据表中
                     storeIntoDataBaseIfIsNewsPage(link, doc);
 
-                    //将当前链接放入已处理的数据库中
-//                System.out.println(link);
                     dao.insertProcessedLink(link);
                 }
             }
@@ -53,7 +50,6 @@ public class Crawler implements Runnable {
         }
     }
 
-    //将该页面的所有链接放入待处理的数据库中
     private void parseUrlsFromPageAndStoreIntoDataBase(Document doc) throws SQLException, UnsupportedEncodingException {
         for (Element aTag : doc.select("a[href]")) {
             String href = URLDecoder.decode(aTag.attr("href"), "UTF-8");
@@ -73,7 +69,6 @@ public class Crawler implements Runnable {
                 && !href.contains("wm");
     }
 
-    //将新闻页面数据存储在news数据表中
     private void storeIntoDataBaseIfIsNewsPage(String link, Document doc) throws SQLException {
         ArrayList<Element> articleTags = doc.select("article");
         if (!articleTags.isEmpty()) {
@@ -88,10 +83,10 @@ public class Crawler implements Runnable {
 
     private static Document httpGetAndParseHtml(String link) throws IOException {
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        if (link.startsWith("//")) {
-            link = "https:" + link;
-        }
-        HttpGet httpGet = new HttpGet(link);
+//        if (link.startsWith("//")) {
+//            link = "https:" + link;
+//        }
+        HttpGet httpGet = new HttpGet(link.startsWith("//") ? ("https:" + link) : link);
         httpGet.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.113 Safari/537");
         try (CloseableHttpResponse response1 = httpclient.execute(httpGet)) {
             HttpEntity entity1 = response1.getEntity();

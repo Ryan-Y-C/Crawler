@@ -7,7 +7,7 @@ public class CrawlerClient {
 //            new Thread(new Crawler(dao)).start();
 //        }
 
-        MockDataGenerator mdg=new MockDataGenerator(100_0000);
+        MockDataGenerator mdg = new MockDataGenerator(100_0000);
         mdg.insertNews();
     }
 }

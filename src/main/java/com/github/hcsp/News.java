@@ -13,13 +13,13 @@ public class News {
     public News() {
     }
 
-    public News(String url, String title, String content) {
+    News(String url, String title, String content) {
         this.url = url;
         this.title = title;
         this.content = content;
     }
 
-    public News(News old) {
+    News(News old) {
         this.id = old.id;
         this.url = old.url;
         this.title = old.title;
@@ -28,19 +28,19 @@ public class News {
         this.modifiedAt = old.modifiedAt;
     }
 
-    public Instant getCreatedAt() {
+    Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Instant createdAt) {
+    void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Instant getModifiedAt() {
+    Instant getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Instant modifiedAt) {
+    void setModifiedAt(Instant modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 

@@ -16,11 +16,11 @@ public class MockDataGenerator implements Runnable {
     private SqlSessionFactory sqlSessionFactory;
     private final int targetRowCount;
 
-    public MockDataGenerator(int targetRowCount) {
+    MockDataGenerator(int targetRowCount) {
         this.targetRowCount = targetRowCount;
     }
 
-    public void insertNews() {
+    void insertNews() {
         String resource = "db/mybatis/config.xml";
         try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
@@ -36,7 +36,7 @@ public class MockDataGenerator implements Runnable {
                     int index = random.nextInt(newsList.size());
                     News news = new News(newsList.get(index));
                     Instant createdAt = news.getCreatedAt();
-                    Instant randomCreatAt = createdAt.minusSeconds(random.nextInt(3600 * 24 * 7));
+                    Instant randomCreatAt = createdAt.minusSeconds(random.nextInt(3600 * 24 * 31));
                     news.setCreatedAt(randomCreatAt);
                     news.setModifiedAt(randomCreatAt);
                     session.insert("com.github.hcsp.MockMapper.insertNews", news);
