@@ -24,7 +24,6 @@ public class ElasticsearchDataGenerator {
 
     public static void main(String[] args) {
         List<News> newsData = getNewsFromMysql();
-        System.out.println(newsData.size());
 //        insertDataIntoElasticsearch(newsData);
         for (int i = 0; i < 10; i++) {
             new Thread(() -> blockInsertionElasticsearch(newsData)).start();
